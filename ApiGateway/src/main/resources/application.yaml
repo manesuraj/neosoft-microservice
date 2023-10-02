@@ -1,0 +1,27 @@
+server:
+  port: 9411
+spring:
+  application:
+    name: API-GATEWAY
+
+  cloud:
+    gateway:
+      routes:
+        - id: USER-SERVICE
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path= /microservice/user/**, /microservice/user/feignClient/**, /microservices/restTemplate/**
+
+        - id: RATING-SERVICE
+          uri: lb://RATING-SERVICE
+          predicates:
+            - Path= /microservice/rating/**
+
+        - id: HOTEL-SERVICE
+          uri: lb://HOTEL-SERVICE
+          predicates:
+            - Path= /microservice/hotel/**
+  config:
+    import: configserver:http://localhost:8088
+
+

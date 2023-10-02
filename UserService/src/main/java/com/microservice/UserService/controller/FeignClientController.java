@@ -6,6 +6,9 @@ import com.microservice.UserService.entity.Rating;
 import com.microservice.UserService.entity.User;
 import com.microservice.UserService.service.FeignClientService;
 import com.netflix.discovery.converters.Auto;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +22,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/microservice/user/feignClient")
 public class FeignClientController {
+
+    private Logger LOGGER = LoggerFactory.getLogger(FeignClientController.class);
 
     @Autowired
     private FeignClientService service;
@@ -52,6 +57,7 @@ public class FeignClientController {
     }
 
     @GetMapping("/getUser/{userId}")
+    @CircuitBreaker(name = "hotelRatingBreaker", fallbackMethod = "ratingHotelFallback")
     public ResponseEntity<?> getUserWithRatingAndHotel(@PathVariable long userId){
         try{
             User user = service.getUserWithRatingAndHotel(userId);
@@ -64,6 +70,7 @@ public class FeignClientController {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
     @GetMapping("/getAllUsers")
     public ResponseEntity<?> getAllUserWithRatingAndHotel(){
